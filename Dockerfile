@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
   libgtk-3-0 \
   fonts-liberation \
   libappindicator3-1 \
+  libgbm1 \
   --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
 
