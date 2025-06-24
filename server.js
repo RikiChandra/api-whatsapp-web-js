@@ -40,12 +40,12 @@ client.on('message', async (msg) => {
     const text = msg.body;
 
     try {
-        const res = await axios.post('http://103.49.239.96:5678/webhook-test/0baf84fd-4216-4a00-8bbd-da719e4e880b', {
+        const res = await axios.post('http://103.49.239.96:5678/webhook/0baf84fd-4216-4a00-8bbd-da719e4e880b', {
             from,
             text
         });
 
-        const reply = res.data?.reply || 'Bot sedang memproses...';
+        const reply = res.data?.reply
         msg.reply(reply);
     } catch (err) {
         console.error('Error ke webhook:', err.message);
