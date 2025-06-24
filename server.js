@@ -4,7 +4,7 @@ const express = require('express');
 const qrcode = require('qrcode');
 const socketIO = require('socket.io');
 const http = require('http');
-
+const axios = require('axios');
 // initial instance
 const PORT = process.env.PORT || 8080;
 const app = express();
@@ -35,11 +35,21 @@ app.get('/', (req, res) => {
 });
 
 // initialize whatsapp and the example event
-client.on('message', msg => {
-    if (msg.body === '!ping') {
-        msg.reply('pong');
-    } else if (msg.body === 'skuy') {
-        msg.reply('helo ma bradah');
+client.on('message', async (msg) => {
+    const from = msg.from;
+    const text = msg.body;
+
+    try {
+        const res = await axios.post('http://103.49.239.96:5678/webhook-test/0baf84fd-4216-4a00-8bbd-da719e4e880b', {
+            from,
+            text
+        });
+
+        const reply = res.data?.reply || 'Bot sedang memproses...';
+        msg.reply(reply);
+    } catch (err) {
+        console.error('Error ke webhook:', err.message);
+        msg.reply('Terjadi kesalahan saat memanggil layanan.');
     }
 });
 
