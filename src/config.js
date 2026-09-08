@@ -23,7 +23,7 @@ module.exports = {
   isProduction,
   host: process.env.HOST || '127.0.0.1',
   port: parseInt(process.env.PORT || '3000', 10),
-  token: process.env.SERVICE_TOKEN || process.env.API_TOKEN || process.env.SIDECAR_TOKEN || '',
+  token: String(process.env.SERVICE_TOKEN || process.env.API_TOKEN || process.env.SIDECAR_TOKEN || '').trim(),
   defaultSession: process.env.DEFAULT_SESSION || 'main',
   sessionDir: process.env.SESSION_DIR || path.join(process.cwd(), 'sessions'),
   pidFile: process.env.PID_FILE || process.env.SIDECAR_PID_FILE || '',

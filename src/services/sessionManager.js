@@ -46,6 +46,10 @@ class SessionManager {
         clientId: sessionId,
         dataPath: config.sessionDir,
       }),
+      authTimeoutMs: 60000,
+      takeoverOnConflict: true,
+      takeoverTimeoutMs: 0,
+      webVersionCache: { type: 'local' },
       puppeteer: {
         headless: true,
         ...(config.chromePath ? { executablePath: config.chromePath } : {}),
@@ -80,6 +84,10 @@ class SessionManager {
   }
 
   bindEvents(sessionId, session, client) {
+    client.on('loading_screen', (percent, message) => {
+      logger.info('session loading', { sessionId, percent, message });
+    });
+
     client.on('qr', async (qr) => {
       session.qrDataUri = await qrcode.toDataURL(qr);
       session.status = 'qr';
@@ -88,6 +96,11 @@ class SessionManager {
     client.on('authenticated', () => {
       session.status = 'authenticated';
       session.readyAt = null;
+      logger.info('session authenticated', { sessionId });
+    });
+
+    client.on('change_state', (state) => {
+      logger.info('session state', { sessionId, state });
     });
 
     client.on('auth_failure', (message) => {
