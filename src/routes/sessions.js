@@ -20,7 +20,8 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/:id/start', asyncHandler(async (req, res) => {
-  const session = await sessionManager.boot(req.params.id);
+  await sessionManager.boot(req.params.id);
+  const session = await sessionManager.waitForBoot(req.params.id);
   success(res, {
     id: req.params.id,
     status: session.status,
@@ -38,14 +39,18 @@ router.delete('/:id', asyncHandler(async (req, res) => {
   success(res, { id: req.params.id, destroyed: true });
 }));
 
-router.get('/:id/qr', (req, res) => {
-  const session = sessionManager.get(req.params.id);
+router.get('/:id/qr', asyncHandler(async (req, res) => {
+  if (!sessionManager.has(req.params.id)) {
+    await sessionManager.boot(req.params.id);
+  }
+
+  const session = await sessionManager.waitForBoot(req.params.id, 20000);
   success(res, {
     id: req.params.id,
     status: session.status,
     qr: session.qrDataUri,
   });
-});
+}));
 
 router.get('/:id/chats', asyncHandler(async (req, res) => {
   sessionManager.requireReady(req.params.id);

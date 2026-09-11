@@ -15,6 +15,14 @@ function existingFile(filePath) {
   }
 }
 
+function firstExisting(paths) {
+  for (const filePath of paths) {
+    const found = existingFile(filePath);
+    if (found) return found;
+  }
+  return undefined;
+}
+
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProduction = nodeEnv === 'production';
 
@@ -28,6 +36,11 @@ module.exports = {
   sessionDir: process.env.SESSION_DIR || path.join(process.cwd(), 'sessions'),
   pidFile: process.env.PID_FILE || process.env.SIDECAR_PID_FILE || '',
   autoStartSessions: envBool(process.env.AUTO_START_SESSIONS, true),
-  chromePath: existingFile(process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH),
+  chromePath: firstExisting([
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    process.env.CHROME_PATH,
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+  ]),
   bodyLimit: process.env.BODY_LIMIT || '50mb',
 };

@@ -52,7 +52,7 @@ function removeDir(dir) {
   }));
   console.log(`stop=${stop.status}`);
 
-  await sleep(2000);
+  await sleep(3000);
 
   try {
     const removed = removeDir(authDir);
@@ -65,6 +65,17 @@ function removeDir(dir) {
   const start = await call('POST', `/v1/sessions/${encodeURIComponent(sessionId)}/start`);
   console.log(`start=${start.status} session_status=${start.body?.data?.status || 'unknown'}`);
   console.log(`qr=${start.body?.data?.qr ? 'yes' : 'no'}`);
+
+  if (!start.body?.data?.qr && start.body?.data?.status !== 'ready') {
+    for (let i = 0; i < 15; i += 1) {
+      await sleep(2000);
+      const qr = await call('GET', `/v1/sessions/${encodeURIComponent(sessionId)}/qr`);
+      const status = qr.body?.data?.status || 'unknown';
+      const hasQr = Boolean(qr.body?.data?.qr);
+      console.log(`poll=${i + 1} status=${status} qr=${hasQr ? 'yes' : 'no'}`);
+      if (hasQr || status === 'ready') break;
+    }
+  }
 })().catch((error) => {
   console.error(error.message);
   process.exit(1);
